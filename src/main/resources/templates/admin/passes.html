@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html"
+      xmlns:th="http://www.thymeleaf.org">
+<html lang="en" class="h-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, height=device-height ,initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+        integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+  <title>Admin page</title>
+</head>
+<body>
+
+<!--верхняя панель. оставляем-->
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <p class="navbar-brand text-white">
+      <span class="align-middle" th:text="${authenticatedUser.getEmail()}"></span>
+      <span class="align-middle"> with roles: </span>
+      <span class="navbar-text text-white" th:each="role : ${authenticatedUser.getRoles()}"
+            th:text="${role.getNameRole().replace('ROLE_', ' ') + ' '}"></span>
+    </p>
+    <form th:action="@{/logout}" method="post">
+      <button type="submit" class="btn btn-dark text-secondary">Logout</button>
+    </form>
+  </div>
+</nav>
+
+
+<!--Левая панель-->
+<div class="container-fluid ">
+  <div class="row ">
+    <div class="p-0 col-2">
+      <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <br>
+        <a class="nav-link" th:href="@{/admin/parkingZones}">Парковочные зоны</a>
+        <a class="nav-link" th:href="@{/admin/employees}">Сотрудники</a>
+        <a class="nav-link" th:href="@{/admin/applications}">Поданные заявления</a>
+        <a class="nav-link active" th:href="@{/admin/passes}">Выданные пропуска</a>
+      </div>
+    </div>
+    <div class="col-10 py-0" style="background-color: whitesmoke">
+      <div class="container-fluid">
+        <div class="tab-content" id="v-pills-tabContent">
+          <div class="tab-pane fade show active" role="tabpanel">
+            <h1 class="m-3 fw-bold">Парковочные зоны</h1>
+            <div class="tabbable">
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a class="nav-link active" data-bs-toggle="tab" href="#tab1"
+                     data-toggle="tab">Парковочные зоны</a>
+                </li>
+              </ul>
+              <div class="tab-content border">
+                <!--<div class="tab-pane active fade show" id="tab1">
+                    <div class="col border card-header">
+                        <div class="fw-bold">
+                            <h3>Список парковочных зон</h3>
+                        </div>
+                    </div>
+                    <div class="table-responsive bg-white">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Номер</th>
+                                <th>Название</th>
+                                <th>Адрес</th>
+                                <th>Количество парковочных мест</th>
+                                <th>Вид въезда</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="parkingZone : ${listParkingZones}">
+                                <td th:text="${parkingZone.getId()}"></td>
+                                <td th:text="${parkingZone.getNameParkingZone()}"></td>
+                                <td th:text="${parkingZone.getAddress()}"></td>
+                                <td th:text="${parkingZone.getCapacity()}"></td>
+                                <td th:text="${parkingZone.getEntry_type()}"></td>
+
+                                <td>
+                                    <button type="button"
+                                            class="btn btn-success btn btn-danger modal-open"
+                                            data-toggle="modal"
+                                            th:data-target="${'#modalDelete' + parkingZone.getId()}">
+                                        Просмотр
+                                    </button>
+                                </td>
+                                <div class="modal fade" th:id="${'modalDelete' + parkingZone.getId()}"&ndash;&gt;
+                                    tabindex="-1" role="dialog"
+                                    aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                    <form th:action="@{/admin/parkingZones/{id}/delete (id=${parkingZone.getId()})}"
+                                          th:object="${parkingZone}" th:method="DELETE">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header text-left">
+                                                    <h5 class="modal-title">Удаление</h5>
+                                                    <button type="button" class="close"
+                                                            data-dismiss="modal">×
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body border text-center">
+                                                    <div class="form-group text-center">
+                                                        &lt;!&ndash;<strong><label>ID</label></strong>
+                                                        <br/>
+                                                        <input disabled type="text" class="form-control"
+                                                               th:value="${parkingZone.getId()}" name="id"/>
+                                                        <br/>&ndash;&gt;
+                                                        <strong><label>Название</label></strong>
+                                                        <input disabled type="text" class="form-control"
+                                                               th:value="${parkingZone.getNameParkingZone()}" name="nameParkingZone"/>
+                                                        <br/>
+                                                        <strong><label>Адрес</label></strong>
+                                                        <br/>
+                                                        <input disabled type="text" class="form-control"
+                                                               th:value="${parkingZone.getAddress()}"
+                                                               name="address"/>
+                                                        <br/>
+                                                        <strong><label>Количество парковочных мест</label></strong>
+                                                        <br/>
+                                                        <input disabled type="number"
+                                                               class="form-control"
+                                                               th:value="${parkingZone.getCapacity()}" name="capacity"/>
+                                                        <br/>
+                                                        <strong><label>Вид въезда</label></strong>
+                                                        <br/>
+                                                        <input disabled type="text"
+                                                               class="form-control"
+                                                               th:value="${parkingZone.getEntry_type()}"
+                                                               name="entry_type"/>
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Закрыть
+                                                    </button>
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-success">Удалить
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"
+        integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>
